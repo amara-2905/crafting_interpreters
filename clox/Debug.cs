@@ -38,6 +38,20 @@ public static class Debug{
                 return SimpleInstruction("OP_MULTIPLY", offset);
             case OpCode.OP_DIVIDE:
                 return SimpleInstruction("OP_DIVIDE", offset);
+            case OpCode.OP_NIL:
+                return SimpleInstruction("OP_NIL", offset);
+            case OpCode.OP_TRUE:
+                return SimpleInstruction("OP_TRUE", offset);
+            case OpCode.OP_FALSE:
+                return SimpleInstruction("OP_FALSE", offset);
+            case OpCode.OP_NOT:
+                return SimpleInstruction("OP_NOT",offset);
+            case OpCode.OP_EQUAL:
+                return SimpleInstruction("OP_EQUAL", offset);
+            case OpCode.OP_GREATER:
+                return SimpleInstruction("OP_GREATER", offset);
+            case OpCode.OP_LESS:
+                return SimpleInstruction("OP_LESS",offset);
             default:
                 Console.WriteLine("Unknown opcode " + instruction);
                 return offset + 1;

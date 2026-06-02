@@ -1,5 +1,4 @@
 #define DEBUG_TRACE_EXECUTION
-using Value = System.Double;
 
 public class VM{
     const int STACK_MAX = 256;
@@ -44,27 +43,27 @@ public class VirtualMachine{
     }
 
     public static void BinaryAdd(){
-        Value b = Pop();
-        Value a = Pop();
-        Push(a + b);
+        double b = Pop().AsNumber;
+        double a = Pop().AsNumber;
+        Push(Value.NumberVal(a + b));
     }
 
     public static void BinarySubtract(){
-        Value b = Pop();
-        Value a = Pop();
-        Push(a - b);
+        double b = Pop().AsNumber;
+        double a = Pop().AsNumber;
+        Push(Value.NumberVal(a - b));
     }
 
     public static void BinaryMultiply(){
-        Value b = Pop();
-        Value a = Pop();
-        Push(a * b);
+        double b = Pop().AsNumber;
+        double a = Pop().AsNumber;
+        Push(Value.NumberVal(a * b));
     }
 
     public static void BinaryDivide(){
-        Value b = Pop();
-        Value a = Pop();
-        Push(a / b);
+        double b = Pop().AsNumber;
+        double a = Pop().AsNumber;
+        Push(Value.NumberVal(a / b));
     }
 
 
@@ -88,12 +87,47 @@ public class VirtualMachine{
                 Value Constant = vm.chunk.Constants.Values[constantIndex];
                     Push(Constant);
                     break;
+                case OpCode.OP_NIL:
+                    Push(Value.NilVal()); break;
+                case OpCode.OP_TRUE:
+                    Push(Value.BoolVal(true)); break;
+                case OpCode.OP_FALSE:
+                    Push(Value.BoolVal(false)); break;
+                case OpCode.OP_NOT:
+                    Push(Value.BoolVal(IsFalsey(Pop()))); break;
+                case OpCode.OP_EQUAL:
+                    Value a = Pop();
+                    Value b = Pop();
+                    Push(Value.BoolVal(Value.ValuesEqual(a,b))); break;
+                case OpCode.OP_GREATER:
+                    if (!Peek(0).IsNumber || !Peek(1).IsNumber){
+                        RuntimeError("Operands must be numbers.");
+                        return InterpretResult.INTERPRET_RUNTIME_ERROR;
+                    }
+                    double greaterB = Pop().AsNumber;
+                    double greaterA = Pop().AsNumber;
+                    Push(Value.BoolVal(greaterA > greaterB));
+                    break;
+
+                case OpCode.OP_LESS:
+                    if (!Peek(0).IsNumber || !Peek(1).IsNumber){
+                        RuntimeError("Operands must be numbers.");
+                        return InterpretResult.INTERPRET_RUNTIME_ERROR;
+                    }
+                    double lessB = Pop().AsNumber;
+                    double lessA = Pop().AsNumber;
+                    Push(Value.BoolVal(lessA < lessB));
+                    break;
                 case OpCode.OP_RETURN:
                     ValueArray.PrintValue(Pop());
                     Console.WriteLine();
                     return InterpretResult.INTERPRET_OK;
                 case OpCode.OP_NEGATE:
-                    Push(-Pop());
+                    if (!Peek(0).IsNumber){
+                        RuntimeError("Operand must be a number.");
+                        return InterpretResult.INTERPRET_RUNTIME_ERROR;
+                    }
+                    Push(Value.NumberVal(-Pop().AsNumber));
                     break;
                 case OpCode.OP_ADD:
                     BinaryAdd();
@@ -123,5 +157,21 @@ public class VirtualMachine{
         InterpretResult result = Run();
         Chunk.FreeChunk(chunk);
         return result;
+    }
+    public static Value Peek(int distance){
+        return vm.stack[vm.stackTop - 1 - distance];
+    }
+
+    public static bool IsFalsey(Value value)
+    {
+        return value.IsNil || (value.IsBool && !value.AsBool);
+    }
+
+    public static void RuntimeError(string message){
+        Console.Error.WriteLine(message);
+        int instruction = vm.ip - 1;
+        int line = vm.chunk.Lines[instruction];
+        Console.Error.WriteLine($"[line {line}] in script");
+        ResetStack();
     }
 }

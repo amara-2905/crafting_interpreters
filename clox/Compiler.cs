@@ -1,4 +1,3 @@
-using Value = System.Double;
 public class Compiler{
     public static Parser parser = new Parser();
     public static Chunk CompilingChunk;
@@ -68,7 +67,28 @@ public class Compiler{
             case TokenType.TOKEN_MINUS: EmitByte((byte)OpCode.OP_SUBTRACT); break;
             case TokenType.TOKEN_STAR: EmitByte((byte)OpCode.OP_MULTIPLY); break;
             case TokenType.TOKEN_SLASH: EmitByte((byte)OpCode.OP_DIVIDE); break;
+            case TokenType.TOKEN_BANG_EQUAL: EmitBytes((byte)OpCode.OP_EQUAL,(byte)OpCode.OP_NOT); break;
+            case TokenType.TOKEN_EQUAL_EQUAL: EmitByte((byte)OpCode.OP_EQUAL); break;
+            case TokenType.TOKEN_GREATER: EmitByte((byte)OpCode.OP_GREATER); break;
+            case TokenType.TOKEN_GREATER_EQUAL: EmitBytes((byte)OpCode.OP_LESS,(byte)OpCode.OP_NOT); break;
+            case TokenType.TOKEN_LESS: EmitByte((byte)OpCode.OP_LESS); break;
+            case TokenType.TOKEN_LESS_EQUAL: EmitBytes((byte)OpCode.OP_GREATER,(byte)OpCode.OP_NOT); break;
             default: return;
+        }
+    }
+
+    public static void Literal()
+    {
+        switch (parser.Previous.type)
+        {
+            case TokenType.TOKEN_FALSE: 
+                EmitByte((byte)OpCode.OP_FALSE); break;
+            case TokenType.TOKEN_NIL: 
+                EmitByte((byte)OpCode.OP_NIL); break;
+            case TokenType.TOKEN_TRUE: 
+                EmitByte((byte)OpCode.OP_TRUE); break;
+            default:
+                return;
         }
     }
 
@@ -87,7 +107,7 @@ public class Compiler{
 
         double value = double.Parse(text);
 
-        EmitConstant(value);
+        EmitConstant(Value.NumberVal(value));
     }
 
     static void Unary()
@@ -99,6 +119,8 @@ public class Compiler{
         {
             case TokenType.TOKEN_MINUS:
                 EmitByte((byte)OpCode.OP_NEGATE); break;
+            case TokenType.TOKEN_BANG:
+                EmitByte((byte)OpCode.OP_NOT); break;
             default: return;
         }
     }
@@ -116,31 +138,31 @@ public class Compiler{
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_SEMICOLON
         new ParseRule(null, Binary, Precedence.PREC_FACTOR),     // TOKEN_SLASH
         new ParseRule(null, Binary, Precedence.PREC_FACTOR),     // TOKEN_STAR
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_BANG
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_BANG_EQUAL
+        new ParseRule(Unary, null, Precedence.PREC_NONE),        // TOKEN_BANG
+        new ParseRule(null, Binary, Precedence.PREC_EQUALITY),         // TOKEN_BANG_EQUAL
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_EQUAL
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_EQUAL_EQUAL
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_GREATER
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_GREATER_EQUAL
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_LESS
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_LESS_EQUAL
+        new ParseRule(null, Binary, Precedence.PREC_EQUALITY),         // TOKEN_EQUAL_EQUAL
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_GREATER
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_GREATER_EQUAL
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_LESS
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_LESS_EQUAL
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_IDENTIFIER
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_STRING
         new ParseRule(Number, null, Precedence.PREC_NONE),       // TOKEN_NUMBER
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_AND
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_CLASS
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_ELSE
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_FALSE
+        new ParseRule(Literal, null, Precedence.PREC_NONE),      // TOKEN_FALSE
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_FOR
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_FUN
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_IF
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_NIL
+        new ParseRule(Literal, null, Precedence.PREC_NONE),      // TOKEN_NIL
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_OR
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_PRINT
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_RETURN
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_SUPER
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_THIS
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_TRUE
+        new ParseRule(Literal, null, Precedence.PREC_NONE),      // TOKEN_TRUE
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_VAR
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_WHILE
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_ERROR

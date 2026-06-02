@@ -33,6 +33,18 @@ public struct Value{
             Type = ValueType.VAL_NIL
         };
     }
+
+    public static bool ValuesEqual(Value a, Value b)
+    {
+        if (a.Type != b.Type) return false;
+        switch (a.Type)
+        {
+            case ValueType.VAL_BOOL: return a.AsBool == b.AsBool;
+            case ValueType.VAL_NIL: return true;
+            case ValueType.VAL_NUMBER: return a.AsNumber == b.AsNumber;
+            default: return false;
+        }
+    }
 }
 
 public class ValueArray{
