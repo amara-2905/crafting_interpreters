@@ -110,6 +110,15 @@ public class Compiler{
         EmitConstant(Value.NumberVal(value));
     }
 
+    static void String(){
+        string text = Source.Substring(
+            parser.Previous.Start + 1,
+            parser.Previous.Length - 2
+        );
+
+        EmitConstant(Value.ObjVal(ObjectMethods.CopyString(text)));
+    }
+
     static void Unary()
     {
         TokenType operatorType = parser.Previous.type;
@@ -139,15 +148,15 @@ public class Compiler{
         new ParseRule(null, Binary, Precedence.PREC_FACTOR),     // TOKEN_SLASH
         new ParseRule(null, Binary, Precedence.PREC_FACTOR),     // TOKEN_STAR
         new ParseRule(Unary, null, Precedence.PREC_NONE),        // TOKEN_BANG
-        new ParseRule(null, Binary, Precedence.PREC_EQUALITY),         // TOKEN_BANG_EQUAL
+        new ParseRule(null, Binary, Precedence.PREC_EQUALITY),   // TOKEN_BANG_EQUAL
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_EQUAL
-        new ParseRule(null, Binary, Precedence.PREC_EQUALITY),         // TOKEN_EQUAL_EQUAL
-        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_GREATER
-        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_GREATER_EQUAL
-        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_LESS
-        new ParseRule(null, Binary, Precedence.PREC_COMPARISON),         // TOKEN_LESS_EQUAL
+        new ParseRule(null, Binary, Precedence.PREC_EQUALITY),   // TOKEN_EQUAL_EQUAL
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON), // TOKEN_GREATER
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON), // TOKEN_GREATER_EQUAL
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON), // TOKEN_LESS
+        new ParseRule(null, Binary, Precedence.PREC_COMPARISON), // TOKEN_LESS_EQUAL
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_IDENTIFIER
-        new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_STRING
+        new ParseRule(String, null, Precedence.PREC_NONE),       // TOKEN_STRING
         new ParseRule(Number, null, Precedence.PREC_NONE),       // TOKEN_NUMBER
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_AND
         new ParseRule(null, null, Precedence.PREC_NONE),         // TOKEN_CLASS

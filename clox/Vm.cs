@@ -130,7 +130,16 @@ public class VirtualMachine{
                     Push(Value.NumberVal(-Pop().AsNumber));
                     break;
                 case OpCode.OP_ADD:
-                    BinaryAdd();
+                    if (ObjectMethods.IsString(Peek(0)) && ObjectMethods.IsString(Peek(1))){
+                        Concatenate();
+                    }
+                    else if (Peek(0).IsNumber && Peek(1).IsNumber){
+                        BinaryAdd();
+                    }
+                    else{
+                        RuntimeError("Operands must be two numbers or two strings.");
+                        return InterpretResult.INTERPRET_RUNTIME_ERROR;
+                    }
                     break;
                 case OpCode.OP_SUBTRACT:
                     BinarySubtract();
@@ -165,6 +174,12 @@ public class VirtualMachine{
     public static bool IsFalsey(Value value)
     {
         return value.IsNil || (value.IsBool && !value.AsBool);
+    }
+
+    public static void Concatenate(){
+        string b = ObjectMethods.AsCString(Pop());
+        string a = ObjectMethods.AsCString(Pop());
+        Push(Value.ObjVal(ObjectMethods.CopyString(a + b)));
     }
 
     public static void RuntimeError(string message){

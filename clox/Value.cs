@@ -38,9 +38,10 @@ public struct Value{
         };
     }
 
-    public static Value ObjVal(){
+    public static Value ObjVal(Obj obj){
         return new Value{
-            Type = ValueType.VAL_OBJ
+            Type = ValueType.VAL_OBJ,
+            obj = obj
         };
     }
 
@@ -52,6 +53,10 @@ public struct Value{
             case ValueType.VAL_BOOL: return a.AsBool == b.AsBool;
             case ValueType.VAL_NIL: return true;
             case ValueType.VAL_NUMBER: return a.AsNumber == b.AsNumber;
+            case ValueType.VAL_OBJ: 
+                ObjString aString = ObjectMethods.AsString(a);
+                ObjString bString = ObjectMethods.AsString(b);
+                return aString.Chars == bString.Chars;
             default: return false;
         }
     }
@@ -94,6 +99,9 @@ public class ValueArray{
                 break;
             case ValueType.VAL_NUMBER:
                 Console.Write(value.Number);
+                break;
+            case ValueType.VAL_OBJ:
+                ObjectMethods.PrintObject(value);
                 break;
         }
     }

@@ -36,4 +36,28 @@ public static class ObjectMethods{
     public static string AsCString(Value value){
         return ((ObjString)value.AsObj).Chars;
     }
+
+    public static ObjString CopyString(string chars){
+        return new ObjString(chars);
+    }
+
+    public static ObjString AllocateString(string chars){
+        return new ObjString(chars);
+    }
+
+    public static Obj AllocateObject(ObjType type){
+        return new Obj(type);
+    }
+
+    public static void PrintObject(Value value){
+        switch (value.AsObj.Type){
+            case ObjType.OBJ_STRING:
+                Console.Write(AsCString(value));
+                break;
+        }
+    }
+
+    public static ObjString TakeString(string chars){
+        return AllocateString(chars);
+    }
 }
