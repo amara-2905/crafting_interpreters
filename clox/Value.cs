@@ -1,7 +1,8 @@
 public enum ValueType{
     VAL_BOOL,
     VAL_NIL,
-    VAL_NUMBER
+    VAL_NUMBER,
+    VAL_OBJ,
 }
 
 public struct Value{
@@ -9,11 +10,14 @@ public struct Value{
 
     public bool Boolean;
     public double Number;
+    public Obj obj;
     public bool IsBool => Type == ValueType.VAL_BOOL;
+    public bool IsObj => Type == ValueType.VAL_OBJ;
     public bool IsNil => Type == ValueType.VAL_NIL;
     public bool IsNumber => Type == ValueType.VAL_NUMBER;
     public bool AsBool => Boolean;
     public double AsNumber => Number;
+    public Obj AsObj => obj;
     public static Value BoolVal(bool value){
         return new Value{
             Type = ValueType.VAL_BOOL,
@@ -31,6 +35,12 @@ public struct Value{
     public static Value NilVal(){
         return new Value{
             Type = ValueType.VAL_NIL
+        };
+    }
+
+    public static Value ObjVal(){
+        return new Value{
+            Type = ValueType.VAL_OBJ
         };
     }
 
